@@ -80,7 +80,7 @@
     <section class="profile">
       <img src="https://via.placeholder.com/80" alt="프로필 사진">
       <div>
-        <h2>앙냥이</h2>
+        <h2>지훈</h2>
         <input type="text" id="statusMessage" placeholder="상태메시지를 입력하세요" onchange="updateStatus()">
         <p id="currentStatus">상태메시지: 오늘도 연애 중...</p>
       </div>
@@ -121,9 +121,22 @@
       }
     }
 
-    function addGuestbook() {
+    function saveGuestbookToLocalStorage() {
+      const listItems = document.querySelectorAll('#guestbookList li span');
+      const entries = Array.from(listItems).map(item => item.textContent);
+      localStorage.setItem('guestbookEntries', JSON.stringify(entries));
+    }
+
+    function loadGuestbookFromLocalStorage() {
+      const entries = JSON.parse(localStorage.getItem('guestbookEntries') || '[]');
+      for (const entry of entries) {
+        addGuestbook(entry);
+      }
+    }
+
+    function addGuestbook(optionalText) {
       const input = document.getElementById('guestInput');
-      const text = input.value.trim();
+      const text = optionalText || input.value.trim();
       if (text !== '') {
         const ul = document.getElementById('guestbookList');
         const li = document.createElement('li');
@@ -134,22 +147,30 @@
         editBtn.textContent = '✏️';
         editBtn.onclick = function () {
           const newText = prompt('수정할 내용을 입력하세요:', span.textContent);
-          if (newText !== null) span.textContent = newText;
+          if (newText !== null) {
+            span.textContent = newText;
+            saveGuestbookToLocalStorage();
+          }
         };
 
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = '🗑️';
         deleteBtn.onclick = function () {
           ul.removeChild(li);
+          saveGuestbookToLocalStorage();
         };
 
         li.appendChild(span);
         li.appendChild(editBtn);
         li.appendChild(deleteBtn);
         ul.appendChild(li);
-        input.value = '';
+
+        if (!optionalText) input.value = '';
+        saveGuestbookToLocalStorage();
       }
     }
+
+    window.onload = loadGuestbookFromLocalStorage;
   </script>
 </body>
 </html>
