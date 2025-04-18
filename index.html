@@ -29,6 +29,10 @@
       const profileFile = document.getElementById("profileFile");
       const diaryInput = document.getElementById("diaryInput");
       const diaryList = document.getElementById("diaryList");
+      const todayDate = document.getElementById("todayDate");
+
+      const today = new Date().toLocaleDateString();
+      todayDate.textContent = `📅 오늘의 날짜: ${today}`;
 
       profileFile.addEventListener('change', () => {
         const file = profileFile.files[0];
@@ -67,6 +71,8 @@
 
           const editBtn = document.createElement('button');
           editBtn.textContent = '✏️';
+          editBtn.style.background = 'none';
+          editBtn.style.border = 'none';
           editBtn.onclick = () => {
             const newText = prompt('수정할 내용을 입력하세요:', entry.text);
             if (newText) update(ref(db, `diary/${key}`), { text: newText });
@@ -74,6 +80,8 @@
 
           const delBtn = document.createElement('button');
           delBtn.textContent = '🗑️';
+          delBtn.style.background = 'none';
+          delBtn.style.border = 'none';
           delBtn.onclick = () => remove(ref(db, `diary/${key}`));
 
           li.appendChild(span);
@@ -105,6 +113,8 @@
 
           const editBtn = document.createElement('button');
           editBtn.textContent = '✏️';
+          editBtn.style.background = 'none';
+          editBtn.style.border = 'none';
           editBtn.onclick = () => {
             const newText = prompt('수정할 내용을 입력하세요:', entry.text);
             if (newText) update(ref(db, `guestbook/${key}`), { text: newText });
@@ -112,6 +122,8 @@
 
           const delBtn = document.createElement('button');
           delBtn.textContent = '🗑️';
+          delBtn.style.background = 'none';
+          delBtn.style.border = 'none';
           delBtn.onclick = () => remove(ref(db, `guestbook/${key}`));
 
           li.appendChild(span);
@@ -129,7 +141,6 @@
       margin: 0;
       padding: 20px;
     }
-
     .book-layout {
       display: flex;
       width: 1200px;
@@ -141,22 +152,18 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
-
     .left-page, .right-page {
       width: 50%;
       padding: 40px;
       position: relative;
     }
-
     .left-page {
       border-right: 1px solid #ddd;
       background-color: #fefefe;
     }
-
     .left-header {
       text-align: center;
     }
-
     .image-container {
       display: flex;
       flex-direction: column;
@@ -164,25 +171,21 @@
       justify-content: center;
       height: calc(100% - 120px);
     }
-
     .left-page img {
-      width: 100%; /* ✅ 사진 크기 조절 위치 */
+      width: 100%;
       max-width: 500px;
       height: auto;
       border-radius: 20px;
       object-fit: cover;
     }
-
     .page-title {
       margin: 0;
     }
-
     .bgm {
       font-size: 13px;
       color: #888;
       margin-bottom: 10px;
     }
-
     .file-label {
       position: absolute;
       bottom: 30px;
@@ -192,45 +195,52 @@
       border: none;
       padding: 0;
     }
-
     .file-label::before {
       content: '⚙️';
       font-size: 24px;
     }
-
     #profileFile {
       display: none;
     }
-
     ul {
       list-style: none;
       padding-left: 0;
     }
-
     input[type="text"] {
       width: 100%;
       padding: 8px;
       margin-top: 10px;
       font-size: 14px;
     }
-
     button {
       padding: 6px 12px;
       margin-top: 10px;
       margin-left: 5px;
-      background-color: #ffd1dc;
+      background: none;
       border: none;
-      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       cursor: pointer;
       font-size: 14px;
     }
-
     button:hover {
       background-color: #ffb6c1;
     }
-
     .section-block {
       margin-bottom: 30px;
+    }
+    .today-photo {
+      flex: 1;
+      padding: 10px;
+      border: 1px dashed #ccc;
+      text-align: center;
+      height: 200px;
+    }
+    .today-date {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 14px;
+      color: #888;
     }
   </style>
 </head>
@@ -260,6 +270,11 @@
         <input type="text" id="guestInput" placeholder="방명록을 남겨보세요!">
         <button id="addGuestbookBtn">등록</button>
       </div>
+      <div class="today-photo">
+        <h4>📷 오늘의 사진</h4>
+        <p>아직 사진이 없습니다.</p>
+      </div>
+      <div id="todayDate" class="today-date"></div>
     </div>
   </div>
 </body>
