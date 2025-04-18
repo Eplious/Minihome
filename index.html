@@ -48,28 +48,40 @@
       document.getElementById("addDiaryBtn").onclick = () => {
         const text = diaryInput.value.trim();
         if (text !== '') {
+          const time = new Date().toLocaleString();
+          const entry = { text, time };
+          push(ref(db, 'diary'), entry);
+          diaryInput.value = '';
+        }
+      };
+
+      onValue(ref(db, 'diary'), (snapshot) => {
+        diaryList.innerHTML = '';
+        snapshot.forEach(child => {
+          const entry = child.val();
+          const key = child.key;
           const li = document.createElement('li');
+
           const span = document.createElement('span');
-          span.textContent = new Date().toLocaleDateString() + ': ' + text;
+          span.textContent = `[${entry.time}] ${entry.text}`;
 
           const editBtn = document.createElement('button');
           editBtn.textContent = '✏️';
           editBtn.onclick = () => {
-            const newText = prompt('수정할 내용을 입력하세요:', span.textContent);
-            if (newText) span.textContent = newText;
+            const newText = prompt('수정할 내용을 입력하세요:', entry.text);
+            if (newText) update(ref(db, `diary/${key}`), { text: newText });
           };
 
           const delBtn = document.createElement('button');
           delBtn.textContent = '🗑️';
-          delBtn.onclick = () => li.remove();
+          delBtn.onclick = () => remove(ref(db, `diary/${key}`));
 
           li.appendChild(span);
           li.appendChild(editBtn);
           li.appendChild(delBtn);
           diaryList.appendChild(li);
-          diaryInput.value = '';
-        }
-      };
+        });
+      });
 
       document.getElementById("addGuestbookBtn").onclick = () => {
         const text = guestInput.value.trim();
