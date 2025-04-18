@@ -22,6 +22,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+     function handleEnterToSubmit(inputEl, buttonEl) {
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        buttonEl.click();
+      }
+    });
+  }
+
     window.addEventListener("DOMContentLoaded", () => {
       const guestInput = document.getElementById("guestInput");
       const guestbookList = document.getElementById("guestbookList");
