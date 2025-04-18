@@ -4,19 +4,85 @@
   <meta charset="UTF-8">
   <title>앙냥의 미니홈피</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #fffaf0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      width: 360px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border: 2px solid #dcdcdc;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    header {
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .profile img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    .diary, .guestbook {
+      margin-top: 20px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 5px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 5px 10px;
+      margin-top: 10px;
+      background-color: #ffd1dc;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #ffb6c1;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>💿 앙냥의 미니홈피</h1>
+      <h1>💿 앙냥이의 미니홈피</h1>
       <p class="bgm">🎵 BGM: Y (Please Tell Me Why) - 프리스타일</p>
     </header>
 
     <section class="profile">
-      <img src="https://via.placeholder.com/100" alt="프로필 사진">
+      <img src="https://via.placeholder.com/80" alt="프로필 사진">
       <div>
         <h2>앙냥이</h2>
-        <p>상태메시지: 오늘도 러브 중....</p>
+        <input type="text" id="statusMessage" placeholder="상태메시지를 입력하세요" onchange="updateStatus()">
+        <p id="currentStatus">상태메시지: 오늘도 코딩 중...</p>
       </div>
     </section>
 
@@ -24,8 +90,9 @@
       <h3>📓 다이어리</h3>
       <ul id="diaryList">
         <li>2025-04-18: 미니홈피 만들기 시작!</li>
-        <li>2025-04-17: 코딩 배우는 중</li>
       </ul>
+      <input type="text" id="diaryInput" placeholder="다이어리 글 입력">
+      <button onclick="addDiary()">추가</button>
     </section>
 
     <section class="guestbook">
@@ -36,6 +103,53 @@
     </section>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    function updateStatus() {
+      const input = document.getElementById('statusMessage');
+      const text = input.value.trim();
+      document.getElementById('currentStatus').textContent = '상태메시지: ' + text;
+    }
+
+    function addDiary() {
+      const input = document.getElementById('diaryInput');
+      const text = input.value.trim();
+      if (text !== '') {
+        const li = document.createElement('li');
+        li.textContent = new Date().toISOString().split('T')[0] + ': ' + text;
+        document.getElementById('diaryList').appendChild(li);
+        input.value = '';
+      }
+    }
+
+    function addGuestbook() {
+      const input = document.getElementById('guestInput');
+      const text = input.value.trim();
+      if (text !== '') {
+        const ul = document.getElementById('guestbookList');
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.textContent = text;
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.onclick = function () {
+          const newText = prompt('수정할 내용을 입력하세요:', span.textContent);
+          if (newText !== null) span.textContent = newText;
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = function () {
+          ul.removeChild(li);
+        };
+
+        li.appendChild(span);
+        li.appendChild(editBtn);
+        li.appendChild(deleteBtn);
+        ul.appendChild(li);
+        input.value = '';
+      }
+    }
+  </script>
 </body>
 </html>
