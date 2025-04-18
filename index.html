@@ -91,9 +91,7 @@
 
     <section class="diary">
       <h3>📓 다이어리</h3>
-      <ul id="diaryList">
-        <li>2025-04-18: 미니홈피 만들기 시작!</li>
-      </ul>
+      <ul id="diaryList"></ul>
       <input type="text" id="diaryInput" placeholder="다이어리 글 입력">
       <button onclick="addDiary()">추가</button>
     </section>
@@ -111,16 +109,38 @@
       const input = document.getElementById('statusMessage');
       const text = input.value.trim();
       document.getElementById('currentStatus').textContent = '상태메시지: ' + text;
+      localStorage.setItem('statusMessage', text);
+    }
+
+    function loadStatus() {
+      const saved = localStorage.getItem('statusMessage');
+      if (saved) {
+        document.getElementById('statusMessage').value = saved;
+        document.getElementById('currentStatus').textContent = '상태메시지: ' + saved;
+      }
     }
 
     function addDiary() {
       const input = document.getElementById('diaryInput');
       const text = input.value.trim();
       if (text !== '') {
-        const li = document.createElement('li');
-        li.textContent = new Date().toISOString().split('T')[0] + ': ' + text;
-        document.getElementById('diaryList').appendChild(li);
+        const entry = new Date().toISOString().split('T')[0] + ': ' + text;
+        const diaryList = JSON.parse(localStorage.getItem('diaryList') || '[]');
+        diaryList.push(entry);
+        localStorage.setItem('diaryList', JSON.stringify(diaryList));
+        displayDiary();
         input.value = '';
+      }
+    }
+
+    function displayDiary() {
+      const diaryList = JSON.parse(localStorage.getItem('diaryList') || '[]');
+      const ul = document.getElementById('diaryList');
+      ul.innerHTML = '';
+      for (const entry of diaryList) {
+        const li = document.createElement('li');
+        li.textContent = entry;
+        ul.appendChild(li);
       }
     }
 
@@ -141,10 +161,13 @@
       const input = document.getElementById('guestInput');
       const text = optionalText || input.value.trim();
       if (text !== '') {
+        const time = new Date().toLocaleString();
+        const entry = `[${time}] ${text}`;
+
         const ul = document.getElementById('guestbookList');
         const li = document.createElement('li');
         const span = document.createElement('span');
-        span.textContent = text;
+        span.textContent = entry;
 
         const editBtn = document.createElement('button');
         editBtn.textContent = '✏️';
@@ -173,7 +196,11 @@
       }
     }
 
-    window.onload = loadGuestbookFromLocalStorage;
+    window.onload = function() {
+      loadStatus();
+      displayDiary();
+      loadGuestbookFromLocalStorage();
+    };
   </script>
 </body>
 </html>
