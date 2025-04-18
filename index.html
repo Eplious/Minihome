@@ -3,6 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <title>앙냥이의 미니홈피</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDy3pl4_wNCfFfn_DCbJz_0g85hLydVa3Q",
+      authDomain: "minihome-504a1.firebaseapp.com",
+      databaseURL: "https://minihome-504a1-default-rtdb.firebaseio.com",
+      projectId: "minihome-504a1",
+      storageBucket: "minihome-504a1.firebasestorage.app",
+      messagingSenderId: "796281031417",
+      appId: "1:796281031417:web:f7e06bb1797d800253b028",
+      measurementId: "G-G9QT8LVPWR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const guestInput = document.getElementById("guestInput");
+      const guestbookList = document.getElementById("guestbookList");
+      const profileImg = document.getElementById("profileImage");
+      const profileFile = document.getElementById("profileFile");
+      const diaryInput = document.getElementById("diaryInput");
+      const diaryList = document.getElementById("diaryList");
+      const todayDate = document.getElementById("todayDate");
+
+      const today = new Date().toLocaleDateString();
+      todayDate.textContent = `${today}`;
+
+      profileFile.addEventListener('change', () => {
+        const file = profileFile.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            profileImg.src = e.target.result;
+            localStorage.setItem('profileImage', e.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      const savedProfile = localStorage.getItem('profileImage');
+      if (savedProfile) profileImg.src = savedProfile;
+
+      document.getElementById("addDiaryBtn").onclick = () => {
+        const text = diaryInput.value.trim();
+        if (text !== '') {
+          const time = new Date().toLocaleString();
+          const entry = { text, time };
+          push(ref(db, 'diary'), entry);
+          diaryInput.value = '';
+        }
+      };
+
+      onValue(ref(db, 'diary'), (snapshot) => {
+        diaryList.innerHTML = '';
+        snapshot.forEach(child => {
+          const entry = child.val();
+          const key = child.key;
+          const li = document.createElement('li');
+
+          const span = document.createElement('span');
+          span.textContent = `[${entry.time}] ${entry.text}`;
+
+          const editBtn = document.createElement('button');
+          editBtn.textContent = '✏️';
+          editBtn.style.background = 'none';
+          editBtn.style.border = 'none';
+          editBtn.style.boxShadow = 'none';
+          editBtn.onclick = () => {
+            const newText = prompt('수정할 내용을 입력하세요:', entry.text);
+            if (newText) update(ref(db, `diary/${key}`), { text: newText });
+          };
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '🗑️';
+          delBtn.style.background = 'none';
+          delBtn.style.border = 'none';
+          delBtn.style.boxShadow = 'none';
+          delBtn.onclick = () => remove(ref(db, `diary/${key}`));
+
+          li.appendChild(span);
+          li.appendChild(editBtn);
+          li.appendChild(delBtn);
+          diaryList.appendChild(li);
+        });
+      });
+
+      document.getElementById("addGuestbookBtn").onclick = () => {
+        const text = guestInput.value.trim();
+        if (text !== '') {
+          const time = new Date().toLocaleString();
+          const entry = { text, time };
+          push(ref(db, 'guestbook'), entry);
+          guestInput.value = '';
+        }
+      };
+
+      onValue(ref(db, 'guestbook'), (snapshot) => {
+        guestbookList.innerHTML = '';
+        snapshot.forEach(child => {
+          const entry = child.val();
+          const key = child.key;
+          const li = document.createElement('li');
+
+          const span = document.createElement('span');
+          span.textContent = `[${entry.time}] ${entry.text}`;
+
+          const editBtn = document.createElement('button');
+          editBtn.textContent = '✏️';
+          editBtn.style.background = 'none';
+          editBtn.style.border = 'none';
+          editBtn.style.boxShadow = 'none';
+          editBtn.onclick = () => {
+            const newText = prompt('수정할 내용을 입력하세요:', entry.text);
+            if (newText) update(ref(db, `guestbook/${key}`), { text: newText });
+          };
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '🗑️';
+          delBtn.style.background = 'none';
+          delBtn.style.border = 'none';
+          delBtn.style.boxShadow = 'none';
+          delBtn.onclick = () => remove(ref(db, `guestbook/${key}`));
+
+          li.appendChild(span);
+          li.appendChild(editBtn);
+          li.appendChild(delBtn);
+          guestbookList.appendChild(li);
+        });
+      });
+    });
+  </script>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -47,45 +182,75 @@
       border-radius: 20px;
       object-fit: cover;
     }
+    .page-title {
+      margin: 0;
+    }
+    .bgm {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 10px;
+    }
     .file-label {
       position: absolute;
       bottom: 30px;
       right: 30px;
       cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .file-label::before {
+      content: '⚙️';
+      font-size: 24px;
     }
     #profileFile {
       display: none;
     }
-    .section-block {
-      margin-bottom: 20px;
+    ul {
+      list-style: none;
+      padding-left: 0;
     }
     .input-group {
       display: flex;
+      align-items: center;
       gap: 10px;
       margin-top: 10px;
     }
     input[type="text"] {
       flex: 1;
       padding: 8px;
+      font-size: 14px;
     }
     button {
       padding: 6px 12px;
+      background: none;
+      border: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       cursor: pointer;
+      font-size: 14px;
     }
-    ul {
-      list-style: none;
-      padding-left: 0;
-      max-height: 150px;
-      overflow-y: auto;
+    button:hover {
+      background-color: #ffb6c1;
+    }
+    .section-block {
+      margin-bottom: 30px;
     }
     .today-photo {
-      border: 1px dashed #ccc;
+      flex: 1;
       padding: 10px;
+      border: 1px dashed #ccc;
       text-align: center;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
-    .today-photo img {
-      max-width: 100%;
-      max-height: 200px;
+    #todayDate {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 14px;
+      color: #888;
     }
   </style>
 </head>
@@ -93,135 +258,38 @@
   <div class="book-layout">
     <div class="left-page">
       <div class="left-header">
-        <h1>💿 앙냥이의 미니홈피</h1>
-        <p>🎵 BGM: Y (Please Tell Me Why) - 프리스타일</p>
+        <h1 class="page-title">💿 앙냥이의 미니홈피</h1>
+        <p class="bgm">🎵 BGM: Y (Please Tell Me Why) - 프리스타일</p>
       </div>
       <div class="image-container">
         <img id="profileImage" src="https://via.placeholder.com/200" alt="프로필 사진">
-        <label for="profileFile" class="file-label">⚙️</label>
-        <input type="file" id="profileFile" accept="image/*">
       </div>
+      <label for="profileFile" class="file-label"></label>
+      <input type="file" id="profileFile" accept="image/*">
     </div>
     <div class="right-page">
       <div class="section-block">
         <h3>📓 다이어리</h3>
         <ul id="diaryList"></ul>
         <div class="input-group">
-          <input type="text" id="diaryInput" placeholder="다이어리 내용을 입력하세요">
-          <button id="addDiary">추가</button>
+          <input type="text" id="diaryInput" placeholder="다이어리 글 입력">
+          <button id="addDiaryBtn">추가</button>
         </div>
       </div>
       <div class="section-block">
         <h3>📬 방명록</h3>
-        <ul id="guestList"></ul>
+        <ul id="guestbookList"></ul>
         <div class="input-group">
-          <input type="text" id="guestInput" placeholder="방명록을 남겨보세요">
-          <button id="addGuest">등록</button>
+          <input type="text" id="guestInput" placeholder="방명록을 남겨보세요!">
+          <button id="addGuestbookBtn">등록</button>
         </div>
       </div>
-      <div class="section-block">
-        <h3>📷 오늘의 사진</h3>
-        <div class="today-photo">
-          <img id="todayImage" src="https://via.placeholder.com/300x200" alt="오늘의 사진">
-          <input type="file" id="todayFile" accept="image/*">
-        </div>
+      <div class="today-photo">
+        <h4>📷 오늘의 사진</h4>
+        <p>아직 사진이 없습니다.</p>
       </div>
+      <div id="todayDate"></div>
     </div>
   </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDy3pl4_wNCfFfn_DCbJz_0g85hLydVa3Q",
-      authDomain: "minihome-504a1.firebaseapp.com",
-      databaseURL: "https://minihome-504a1-default-rtdb.firebaseio.com",
-      projectId: "minihome-504a1",
-      storageBucket: "minihome-504a1.appspot.com",
-      messagingSenderId: "796281031417",
-      appId: "1:796281031417:web:f7e06bb1797d800253b028"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const storage = getStorage(app);
-
-    const profileImg = document.getElementById("profileImage");
-    const profileInput = document.getElementById("profileFile");
-    const todayImg = document.getElementById("todayImage");
-    const todayInput = document.getElementById("todayFile");
-
-    const getTime = () => new Date().toLocaleString();
-
-    profileInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const fileRef = storageRef(storage, "profile/profileImage.jpg");
-      await uploadBytes(fileRef, file);
-      const url = await getDownloadURL(fileRef);
-      profileImg.src = url;
-    });
-
-    todayInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const fileRef = storageRef(storage, "photo/today.jpg");
-      await uploadBytes(fileRef, file);
-      const url = await getDownloadURL(fileRef);
-      todayImg.src = url;
-    });
-
-    window.addEventListener("DOMContentLoaded", async () => {
-      try {
-        const profileRef = storageRef(storage, "profile/profileImage.jpg");
-        profileImg.src = await getDownloadURL(profileRef);
-      } catch {}
-      try {
-        const photoRef = storageRef(storage, "photo/today.jpg");
-        todayImg.src = await getDownloadURL(photoRef);
-      } catch {}
-
-      const diaryInput = document.getElementById("diaryInput");
-      const addDiary = document.getElementById("addDiary");
-      const diaryList = document.getElementById("diaryList");
-      const guestInput = document.getElementById("guestInput");
-      const addGuest = document.getElementById("addGuest");
-      const guestList = document.getElementById("guestList");
-
-      addDiary.addEventListener("click", () => {
-        const text = diaryInput.value.trim();
-        if (text) push(ref(db, "diary"), { text, time: getTime() });
-        diaryInput.value = "";
-      });
-
-      addGuest.addEventListener("click", () => {
-        const text = guestInput.value.trim();
-        if (text) push(ref(db, "guestbook"), { text, time: getTime() });
-        guestInput.value = "";
-      });
-
-      onValue(ref(db, "diary"), snapshot => {
-        diaryList.innerHTML = "";
-        snapshot.forEach(child => {
-          const val = child.val();
-          const li = document.createElement("li");
-          li.textContent = `[${val.time ?? '시간 없음'}] ${val.text}`;
-          diaryList.appendChild(li);
-        });
-      });
-
-      onValue(ref(db, "guestbook"), snapshot => {
-        guestList.innerHTML = "";
-        snapshot.forEach(child => {
-          const val = child.val();
-          const li = document.createElement("li");
-          li.textContent = `[${val.time ?? '시간 없음'}] ${val.text}`;
-          guestList.appendChild(li);
-        });
-      });
-    });
-  </script>
 </body>
 </html>
