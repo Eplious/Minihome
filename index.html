@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="style.css">
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDy3pl4_wNCfFfn_DCbJz_0g85hLydVa3Q",
@@ -25,28 +25,97 @@
     window.addEventListener("DOMContentLoaded", () => {
       const guestInput = document.getElementById("guestInput");
       const guestbookList = document.getElementById("guestbookList");
+      const profileImg = document.getElementById("profileImage");
+      const profileInput = document.getElementById("profileUrl");
+      const statusInput = document.getElementById("statusMessage");
+      const statusText = document.getElementById("currentStatus");
+      const diaryInput = document.getElementById("diaryInput");
+      const diaryList = document.getElementById("diaryList");
 
+      // 프로필 사진 변경
+      profileInput.addEventListener('change', () => {
+        profileImg.src = profileInput.value.trim();
+        localStorage.setItem('profileImage', profileInput.value.trim());
+      });
+
+      // 프로필 사진 로드
+      const savedProfile = localStorage.getItem('profileImage');
+      if (savedProfile) profileImg.src = savedProfile;
+
+      // 상태메시지 수정
+      statusInput.addEventListener('change', () => {
+        statusText.textContent = '상태메시지: ' + statusInput.value.trim();
+        localStorage.setItem('statusMessage', statusInput.value.trim());
+      });
+      const savedStatus = localStorage.getItem('statusMessage');
+      if (savedStatus) {
+        statusInput.value = savedStatus;
+        statusText.textContent = '상태메시지: ' + savedStatus;
+      }
+
+      // 다이어리 추가
+      document.getElementById("addDiaryBtn").onclick = () => {
+        const text = diaryInput.value.trim();
+        if (text !== '') {
+          const li = document.createElement('li');
+          const span = document.createElement('span');
+          span.textContent = new Date().toLocaleDateString() + ': ' + text;
+
+          const editBtn = document.createElement('button');
+          editBtn.textContent = '✏️';
+          editBtn.onclick = () => {
+            const newText = prompt('수정할 내용을 입력하세요:', span.textContent);
+            if (newText) span.textContent = newText;
+          };
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '🗑️';
+          delBtn.onclick = () => li.remove();
+
+          li.appendChild(span);
+          li.appendChild(editBtn);
+          li.appendChild(delBtn);
+          diaryList.appendChild(li);
+          diaryInput.value = '';
+        }
+      };
+
+      // 방명록 추가
       document.getElementById("addGuestbookBtn").onclick = () => {
         const text = guestInput.value.trim();
         if (text !== '') {
           const time = new Date().toLocaleString();
-          const entry = {
-            text,
-            time
-          };
+          const entry = { text, time };
           push(ref(db, 'guestbook'), entry);
           guestInput.value = '';
         }
       };
 
+      // 방명록 불러오기
       onValue(ref(db, 'guestbook'), (snapshot) => {
         guestbookList.innerHTML = '';
         snapshot.forEach(child => {
           const entry = child.val();
+          const key = child.key;
           const li = document.createElement('li');
+
           const span = document.createElement('span');
           span.textContent = `[${entry.time}] ${entry.text}`;
+
+          const editBtn = document.createElement('button');
+          editBtn.textContent = '✏️';
+          editBtn.onclick = () => {
+            const newText = prompt('수정할 내용을 입력하세요:', entry.text);
+            if (newText) update(ref(db, `guestbook/${key}`), { text: newText });
+          };
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '🗑️';
+          delBtn.onclick = () => remove(ref(db, `guestbook/${key}`));
+
           li.appendChild(span);
+          li.appendChild(editBtn);
+          li.appendChild(delBtn);
           guestbookList.appendChild(li);
         });
       });
@@ -129,9 +198,10 @@
     </header>
 
     <section class="profile">
-      <img src="https://via.placeholder.com/100" alt="프로필 사진">
+      <img id="profileImage" src="https://via.placeholder.com/100" alt="프로필 사진">
       <div>
         <h2>앙냥이</h2>
+        <input type="text" id="profileUrl" placeholder="프로필 사진 URL 입력">
         <input type="text" id="statusMessage" placeholder="상태메시지를 입력하세요">
         <p id="currentStatus">상태메시지: 오늘도 연애 중...</p>
       </div>
@@ -141,7 +211,7 @@
       <h3>📓 다이어리</h3>
       <ul id="diaryList"></ul>
       <input type="text" id="diaryInput" placeholder="다이어리 글 입력">
-      <button onclick="addDiary()">추가</button>
+      <button id="addDiaryBtn">추가</button>
     </section>
 
     <section class="guestbook">
