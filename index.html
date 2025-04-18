@@ -6,14 +6,15 @@
   <link rel="stylesheet" href="style.css">
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, update, remove, set, get, child } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDy3pl4_wNCfFfn_DCbJz_0g85hLydVa3Q",
       authDomain: "minihome-504a1.firebaseapp.com",
       databaseURL: "https://minihome-504a1-default-rtdb.firebaseio.com",
       projectId: "minihome-504a1",
-      storageBucket: "minihome-504a1.firebasestorage.app",
+      storageBucket: "minihome-504a1.appspot.com",
       messagingSenderId: "796281031417",
       appId: "1:796281031417:web:f7e06bb1797d800253b028",
       measurementId: "G-G9QT8LVPWR"
@@ -21,8 +22,9 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const storage = getStorage(app);
 
-    window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", async () => {
       const profileImg = document.getElementById("profileImage");
       const profileFile = document.getElementById("profileFile");
       const diaryInput = document.getElementById("diaryInput");
@@ -32,20 +34,24 @@
       const today = new Date().toLocaleDateString();
       todayDate.textContent = `${today}`;
 
-      profileFile.addEventListener('change', () => {
+      profileFile.addEventListener('change', async () => {
         const file = profileFile.files[0];
         if (file) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            profileImg.src = e.target.result;
-            localStorage.setItem('profileImage', e.target.result);
-          };
-          reader.readAsDataURL(file);
+          const filePath = 'profile/profile.jpg';
+          const fileRef = storageRef(storage, filePath);
+          await uploadBytes(fileRef, file);
+          const downloadURL = await getDownloadURL(fileRef);
+          await set(ref(db, 'profileImage'), { url: downloadURL });
+          profileImg.src = downloadURL;
         }
       });
 
-      const savedProfile = localStorage.getItem('profileImage');
-      if (savedProfile) profileImg.src = savedProfile;
+      // 처음 로딩 시 프로필 이미지 불러오기
+      const snapshot = await get(child(ref(db), 'profileImage'));
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        profileImg.src = data.url;
+      }
 
       document.getElementById("addDiaryBtn").onclick = () => {
         const text = diaryInput.value.trim();
