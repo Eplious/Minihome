@@ -153,6 +153,8 @@
     const todayImg = document.getElementById("todayImage");
     const todayInput = document.getElementById("todayFile");
 
+    const getTime = () => new Date().toLocaleString();
+
     profileInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -190,20 +192,22 @@
 
       addDiary.addEventListener("click", () => {
         const text = diaryInput.value.trim();
-        if (text) push(ref(db, "diary"), { text });
+        if (text) push(ref(db, "diary"), { text, time: getTime() });
         diaryInput.value = "";
       });
+
       addGuest.addEventListener("click", () => {
         const text = guestInput.value.trim();
-        if (text) push(ref(db, "guestbook"), { text });
+        if (text) push(ref(db, "guestbook"), { text, time: getTime() });
         guestInput.value = "";
       });
 
       onValue(ref(db, "diary"), snapshot => {
         diaryList.innerHTML = "";
         snapshot.forEach(child => {
+          const val = child.val();
           const li = document.createElement("li");
-          li.textContent = child.val().text;
+          li.textContent = `[${val.time ?? '시간 없음'}] ${val.text}`;
           diaryList.appendChild(li);
         });
       });
@@ -211,8 +215,9 @@
       onValue(ref(db, "guestbook"), snapshot => {
         guestList.innerHTML = "";
         snapshot.forEach(child => {
+          const val = child.val();
           const li = document.createElement("li");
-          li.textContent = child.val().text;
+          li.textContent = `[${val.time ?? '시간 없음'}] ${val.text}`;
           guestList.appendChild(li);
         });
       });
