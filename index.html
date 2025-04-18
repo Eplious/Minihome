@@ -32,7 +32,7 @@
       const todayDate = document.getElementById("todayDate");
 
       const today = new Date().toLocaleDateString();
-      todayDate.textContent = `📅 오늘의 날짜: ${today}`;
+      todayDate.textContent = `${today}`;
 
       profileFile.addEventListener('change', () => {
         const file = profileFile.files[0];
@@ -233,7 +233,7 @@
       padding: 10px;
       border: 1px dashed #ccc;
       text-align: center;
-      height: 200px;
+      height: 280px;
     }
     .today-date {
       position: absolute;
@@ -271,7 +271,7 @@
         <button id="addGuestbookBtn">등록</button>
       </div>
       <div class="today-photo">
-        <h4>📷 오늘의 사진</h4>
+        <h3>📷 오늘의 사진</h3>
         <p>아직 사진이 없습니다.</p>
       </div>
       <div id="todayDate" class="today-date"></div>
