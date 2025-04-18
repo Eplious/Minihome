@@ -23,8 +23,6 @@
     const db = getDatabase(app);
 
     window.addEventListener("DOMContentLoaded", () => {
-      const guestInput = document.getElementById("guestInput");
-      const guestbookList = document.getElementById("guestbookList");
       const profileImg = document.getElementById("profileImage");
       const profileFile = document.getElementById("profileFile");
       const diaryInput = document.getElementById("diaryInput");
@@ -88,46 +86,6 @@
           diaryList.appendChild(li);
         });
       });
-
-      document.getElementById("addGuestbookBtn").onclick = () => {
-        const text = guestInput.value.trim();
-        if (text !== '') {
-          const time = new Date().toLocaleString();
-          const entry = { text, time };
-          push(ref(db, 'guestbook'), entry);
-          guestInput.value = '';
-        }
-      };
-
-      onValue(ref(db, 'guestbook'), (snapshot) => {
-        guestbookList.innerHTML = '';
-        snapshot.forEach(child => {
-          const entry = child.val();
-          const key = child.key;
-          const li = document.createElement('li');
-
-          const span = document.createElement('span');
-          span.textContent = `[${entry.time}] ${entry.text}`;
-
-          const editBtn = document.createElement('button');
-          editBtn.textContent = '✏️';
-          editBtn.className = 'edit-btn';
-          editBtn.onclick = () => {
-            const newText = prompt('수정할 내용을 입력하세요:', entry.text);
-            if (newText) update(ref(db, `guestbook/${key}`), { text: newText });
-          };
-
-          const delBtn = document.createElement('button');
-          delBtn.textContent = '🗑️';
-          delBtn.className = 'delete-btn';
-          delBtn.onclick = () => remove(ref(db, `guestbook/${key}`));
-
-          li.appendChild(span);
-          li.appendChild(editBtn);
-          li.appendChild(delBtn);
-          guestbookList.appendChild(li);
-        });
-      });
     });
   </script>
   <style>
@@ -168,9 +126,9 @@
       height: calc(100% - 120px);
     }
     .left-page img {
-      width: auto;
-      height: 80%;
-      max-height: 200px;
+      width: 80%;
+      max-width: 200px;
+      height: auto;
       border-radius: 20px;
       object-fit: cover;
     }
@@ -228,8 +186,7 @@
     .section-block {
       margin-bottom: 30px;
     }
-    #diaryList,
-    #guestbookList {
+    #diaryList {
       max-height: 180px;
       overflow-y: auto;
       padding-right: 5px;
@@ -285,14 +242,6 @@
         <div class="input-group">
           <input type="text" id="diaryInput" placeholder="다이어리 글 입력">
           <button id="addDiaryBtn">추가</button>
-        </div>
-      </div>
-      <div class="section-block">
-        <h3>📬 방명록</h3>
-        <ul id="guestbookList"></ul>
-        <div class="input-group">
-          <input type="text" id="guestInput" placeholder="방명록을 남겨보세요!">
-          <button id="addGuestbookBtn">등록</button>
         </div>
       </div>
       <div class="section-block">
