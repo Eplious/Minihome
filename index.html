@@ -4,6 +4,54 @@
   <meta charset="UTF-8">
   <title>앙냥의 미니홈피</title>
   <link rel="stylesheet" href="style.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDy3pl4_wNCfFfn_DCbJz_0g85hLydVa3Q",
+      authDomain: "minihome-504a1.firebaseapp.com",
+      databaseURL: "https://minihome-504a1-default-rtdb.firebaseio.com",
+      projectId: "minihome-504a1",
+      storageBucket: "minihome-504a1.firebasestorage.app",
+      messagingSenderId: "796281031417",
+      appId: "1:796281031417:web:f7e06bb1797d800253b028",
+      measurementId: "G-G9QT8LVPWR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const guestInput = document.getElementById("guestInput");
+      const guestbookList = document.getElementById("guestbookList");
+
+      document.getElementById("addGuestbookBtn").onclick = () => {
+        const text = guestInput.value.trim();
+        if (text !== '') {
+          const time = new Date().toLocaleString();
+          const entry = {
+            text,
+            time
+          };
+          push(ref(db, 'guestbook'), entry);
+          guestInput.value = '';
+        }
+      };
+
+      onValue(ref(db, 'guestbook'), (snapshot) => {
+        guestbookList.innerHTML = '';
+        snapshot.forEach(child => {
+          const entry = child.val();
+          const li = document.createElement('li');
+          const span = document.createElement('span');
+          span.textContent = `[${entry.time}] ${entry.text}`;
+          li.appendChild(span);
+          guestbookList.appendChild(li);
+        });
+      });
+    });
+  </script>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -84,7 +132,7 @@
       <img src="https://via.placeholder.com/100" alt="프로필 사진">
       <div>
         <h2>앙냥이</h2>
-        <input type="text" id="statusMessage" placeholder="상태메시지를 입력하세요" onchange="updateStatus()">
+        <input type="text" id="statusMessage" placeholder="상태메시지를 입력하세요">
         <p id="currentStatus">상태메시지: 오늘도 연애 중...</p>
       </div>
     </section>
@@ -100,107 +148,8 @@
       <h3>📬 방명록</h3>
       <ul id="guestbookList"></ul>
       <input type="text" id="guestInput" placeholder="방명록을 남겨보세요!">
-      <button onclick="addGuestbook()">등록</button>
+      <button id="addGuestbookBtn">등록</button>
     </section>
   </div>
-
-  <script>
-    function updateStatus() {
-      const input = document.getElementById('statusMessage');
-      const text = input.value.trim();
-      document.getElementById('currentStatus').textContent = '상태메시지: ' + text;
-      localStorage.setItem('statusMessage', text);
-    }
-
-    function loadStatus() {
-      const saved = localStorage.getItem('statusMessage');
-      if (saved) {
-        document.getElementById('statusMessage').value = saved;
-        document.getElementById('currentStatus').textContent = '상태메시지: ' + saved;
-      }
-    }
-
-    function addDiary() {
-      const input = document.getElementById('diaryInput');
-      const text = input.value.trim();
-      if (text !== '') {
-        const entry = new Date().toISOString().split('T')[0] + ': ' + text;
-        const diaryList = JSON.parse(localStorage.getItem('diaryList') || '[]');
-        diaryList.push(entry);
-        localStorage.setItem('diaryList', JSON.stringify(diaryList));
-        displayDiary();
-        input.value = '';
-      }
-    }
-
-    function displayDiary() {
-      const diaryList = JSON.parse(localStorage.getItem('diaryList') || '[]');
-      const ul = document.getElementById('diaryList');
-      ul.innerHTML = '';
-      for (const entry of diaryList) {
-        const li = document.createElement('li');
-        li.textContent = entry;
-        ul.appendChild(li);
-      }
-    }
-
-    function saveGuestbookToLocalStorage() {
-      const listItems = document.querySelectorAll('#guestbookList li span');
-      const entries = Array.from(listItems).map(item => item.textContent);
-      localStorage.setItem('guestbookEntries', JSON.stringify(entries));
-    }
-
-    function loadGuestbookFromLocalStorage() {
-      const entries = JSON.parse(localStorage.getItem('guestbookEntries') || '[]');
-      for (const entry of entries) {
-        addGuestbook(entry);
-      }
-    }
-
-    function addGuestbook(optionalText) {
-      const input = document.getElementById('guestInput');
-      const text = optionalText || input.value.trim();
-      if (text !== '') {
-        const time = new Date().toLocaleString();
-        const entry = `[${time}] ${text}`;
-
-        const ul = document.getElementById('guestbookList');
-        const li = document.createElement('li');
-        const span = document.createElement('span');
-        span.textContent = entry;
-
-        const editBtn = document.createElement('button');
-        editBtn.textContent = '✏️';
-        editBtn.onclick = function () {
-          const newText = prompt('수정할 내용을 입력하세요:', span.textContent);
-          if (newText !== null) {
-            span.textContent = newText;
-            saveGuestbookToLocalStorage();
-          }
-        };
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '🗑️';
-        deleteBtn.onclick = function () {
-          ul.removeChild(li);
-          saveGuestbookToLocalStorage();
-        };
-
-        li.appendChild(span);
-        li.appendChild(editBtn);
-        li.appendChild(deleteBtn);
-        ul.appendChild(li);
-
-        if (!optionalText) input.value = '';
-        saveGuestbookToLocalStorage();
-      }
-    }
-
-    window.onload = function() {
-      loadStatus();
-      displayDiary();
-      loadGuestbookFromLocalStorage();
-    };
-  </script>
 </body>
 </html>
