@@ -27,12 +27,9 @@
       const guestbookList = document.getElementById("guestbookList");
       const profileImg = document.getElementById("profileImage");
       const profileFile = document.getElementById("profileFile");
-      const statusInput = document.getElementById("statusMessage");
-      const statusText = document.getElementById("currentStatus");
       const diaryInput = document.getElementById("diaryInput");
       const diaryList = document.getElementById("diaryList");
 
-      // 프로필 사진 업로드
       profileFile.addEventListener('change', () => {
         const file = profileFile.files[0];
         if (file) {
@@ -45,22 +42,9 @@
         }
       });
 
-      // 프로필 사진 로드
       const savedProfile = localStorage.getItem('profileImage');
       if (savedProfile) profileImg.src = savedProfile;
 
-      // 상태메시지 수정
-      statusInput.addEventListener('change', () => {
-        statusText.textContent = '상태메시지: ' + statusInput.value.trim();
-        localStorage.setItem('statusMessage', statusInput.value.trim());
-      });
-      const savedStatus = localStorage.getItem('statusMessage');
-      if (savedStatus) {
-        statusInput.value = savedStatus;
-        statusText.textContent = '상태메시지: ' + savedStatus;
-      }
-
-      // 다이어리 추가
       document.getElementById("addDiaryBtn").onclick = () => {
         const text = diaryInput.value.trim();
         if (text !== '') {
@@ -87,7 +71,6 @@
         }
       };
 
-      // 방명록 추가
       document.getElementById("addGuestbookBtn").onclick = () => {
         const text = guestInput.value.trim();
         if (text !== '') {
@@ -98,7 +81,6 @@
         }
       };
 
-      // 방명록 불러오기
       onValue(ref(db, 'guestbook'), (snapshot) => {
         guestbookList.innerHTML = '';
         snapshot.forEach(child => {
@@ -153,16 +135,15 @@
     }
 
     .profile {
-      display: flex;
-      align-items: center;
+      text-align: center;
       margin: 20px 0;
     }
 
     .profile img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      margin-right: 20px;
+      width: 200px;
+      height: 200px;
+      border-radius: 20px;
+      object-fit: cover;
     }
 
     .diary, .guestbook {
@@ -206,12 +187,7 @@
 
     <section class="profile">
       <img id="profileImage" src="https://via.placeholder.com/100" alt="프로필 사진">
-      <div>
-        <h2>앙냥이</h2>
-        <input type="file" id="profileFile" accept="image/*">
-        <input type="text" id="statusMessage" placeholder="상태메시지를 입력하세요">
-        <p id="currentStatus">상태메시지: 오늘도 연애 중...</p>
-      </div>
+      <input type="file" id="profileFile" accept="image/*">
     </section>
 
     <section class="diary">
