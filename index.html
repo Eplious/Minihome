@@ -229,16 +229,33 @@
       cursor: pointer;
       font-size: 14px;
     }
-    .section-block {
-      margin-bottom: 30px;
-    }
-    .today-photo {
-      flex: 1;
-      padding: 10px;
-      border: 1px dashed #ccc;
-      text-align: center;
-      height: 280px;
-    }
+  .right-page {
+  width: 50%;
+  padding: 40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  gap: 10px;
+}
+.section-block {
+  flex: 0 0 25%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.today-photo {
+  flex: 1;
+  padding: 10px;
+  border: 1px dashed #ccc;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+}
+
     .today-date {
       position: absolute;
       bottom: 10px;
