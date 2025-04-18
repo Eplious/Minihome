@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>앙냥의 미니홈피</title>
+  <title>앙냥이의 미니홈피</title>
   <link rel="stylesheet" href="style.css">
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
@@ -145,17 +145,21 @@
     .left-page, .right-page {
       width: 50%;
       padding: 40px;
+      position: relative;
     }
 
     .left-page {
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       border-right: 1px solid #ddd;
       background-color: #fefefe;
     }
 
     .left-page img {
-      width: 100%;
-      max-width: 300px;
+      width: 90%; /* ✅ 사진 크기 조절 위치 */
+      max-width: 400px;
       height: auto;
       border-radius: 20px;
       object-fit: cover;
@@ -172,21 +176,18 @@
     }
 
     .file-label {
-      display: inline-block;
-      margin-top: 10px;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
       cursor: pointer;
-      background-color: #ffd1dc;
-      border-radius: 5px;
-      padding: 6px 10px;
-    }
-
-    .file-label:hover {
-      background-color: #ffb6c1;
+      background: none;
+      border: none;
+      padding: 0;
     }
 
     .file-label::before {
       content: '⚙️';
-      font-size: 16px;
+      font-size: 24px;
     }
 
     #profileFile {
@@ -231,23 +232,3 @@
       <h1 class="page-title">💿 앙냥이의 미니홈피</h1>
       <p class="bgm">🎵 BGM: Y (Please Tell Me Why) - 프리스타일</p>
       <img id="profileImage" src="https://via.placeholder.com/200" alt="프로필 사진">
-      <label for="profileFile" class="file-label"></label>
-      <input type="file" id="profileFile" accept="image/*">
-    </div>
-    <div class="right-page">
-      <div class="section-block">
-        <h3>📓 다이어리</h3>
-        <ul id="diaryList"></ul>
-        <input type="text" id="diaryInput" placeholder="다이어리 글 입력">
-        <button id="addDiaryBtn">추가</button>
-      </div>
-      <div class="section-block">
-        <h3>📬 방명록</h3>
-        <ul id="guestbookList"></ul>
-        <input type="text" id="guestInput" placeholder="방명록을 남겨보세요!">
-        <button id="addGuestbookBtn">등록</button>
-      </div>
-    </div>
-  </div>
-</body>
-</html>
