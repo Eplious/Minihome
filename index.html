@@ -26,16 +26,23 @@
       const guestInput = document.getElementById("guestInput");
       const guestbookList = document.getElementById("guestbookList");
       const profileImg = document.getElementById("profileImage");
-      const profileInput = document.getElementById("profileUrl");
+      const profileFile = document.getElementById("profileFile");
       const statusInput = document.getElementById("statusMessage");
       const statusText = document.getElementById("currentStatus");
       const diaryInput = document.getElementById("diaryInput");
       const diaryList = document.getElementById("diaryList");
 
-      // 프로필 사진 변경
-      profileInput.addEventListener('change', () => {
-        profileImg.src = profileInput.value.trim();
-        localStorage.setItem('profileImage', profileInput.value.trim());
+      // 프로필 사진 업로드
+      profileFile.addEventListener('change', () => {
+        const file = profileFile.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            profileImg.src = e.target.result;
+            localStorage.setItem('profileImage', e.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
       });
 
       // 프로필 사진 로드
@@ -167,7 +174,7 @@
       padding-left: 0;
     }
 
-    input[type="text"] {
+    input[type="text"], input[type="file"] {
       width: 85%;
       padding: 8px;
       margin-top: 10px;
@@ -201,7 +208,7 @@
       <img id="profileImage" src="https://via.placeholder.com/100" alt="프로필 사진">
       <div>
         <h2>앙냥이</h2>
-        <input type="text" id="profileUrl" placeholder="프로필 사진 URL 입력">
+        <input type="file" id="profileFile" accept="image/*">
         <input type="text" id="statusMessage" placeholder="상태메시지를 입력하세요">
         <p id="currentStatus">상태메시지: 오늘도 연애 중...</p>
       </div>
