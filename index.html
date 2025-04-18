@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>나의 미니홈피</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💿 지훈이의 미니홈피</h1>
+      <p class="bgm">🎵 BGM: Y (Please Tell Me Why) - 프리스타일</p>
+    </header>
+
+    <section class="profile">
+      <img src="https://via.placeholder.com/100" alt="프로필 사진">
+      <div>
+        <h2>지훈</h2>
+        <p>상태메시지: 오늘도 코딩 중...</p>
+      </div>
+    </section>
+
+    <section class="diary">
+      <h3>📓 다이어리</h3>
+      <ul id="diaryList">
+        <li>2025-04-18: 미니홈피 만들기 시작!</li>
+        <li>2025-04-17: 코딩 배우는 중</li>
+      </ul>
+    </section>
+
+    <section class="guestbook">
+      <h3>📬 방명록</h3>
+      <ul id="guestbookList"></ul>
+      <input type="text" id="guestInput" placeholder="방명록을 남겨보세요!">
+      <button onclick="addGuestbook()">등록</button>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
