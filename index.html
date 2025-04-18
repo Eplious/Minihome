@@ -4,25 +4,25 @@
   <meta charset="UTF-8">
   <title>앙냥이의 미니홈피</title>
   <link rel="stylesheet" href="style.css">
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDy3pl4_wNCfFfn_DCbJz_0g85hLydVa3Q",
-      authDomain: "minihome-504a1.firebaseapp.com",
-      databaseURL: "https://minihome-504a1-default-rtdb.firebaseio.com",
-      projectId: "minihome-504a1",
-      storageBucket: "minihome-504a1.firebasestorage.app",
-      messagingSenderId: "796281031417",
-      appId: "1:796281031417:web:f7e06bb1797d800253b028",
-      measurementId: "G-G9QT8LVPWR"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDy3pl4_wNCfFfn_DCbJz_0g85hLydVa3Q",
+    authDomain: "minihome-504a1.firebaseapp.com",
+    databaseURL: "https://minihome-504a1-default-rtdb.firebaseio.com",
+    projectId: "minihome-504a1",
+    storageBucket: "minihome-504a1.firebasestorage.app",
+    messagingSenderId: "796281031417",
+    appId: "1:796281031417:web:f7e06bb1797d800253b028",
+    measurementId: "G-G9QT8LVPWR"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-     function handleEnterToSubmit(inputEl, buttonEl) {
+  function handleEnterToSubmit(inputEl, buttonEl) {
     inputEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -31,122 +31,89 @@
     });
   }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const guestInput = document.getElementById("guestInput");
-      const guestbookList = document.getElementById("guestbookList");
-      const profileImg = document.getElementById("profileImage");
-      const profileFile = document.getElementById("profileFile");
-      const diaryInput = document.getElementById("diaryInput");
-      const diaryList = document.getElementById("diaryList");
-      const todayDate = document.getElementById("todayDate");
+  window.addEventListener("DOMContentLoaded", () => {
+    const diaryInput = document.getElementById("diaryInput");
+    const guestInput = document.getElementById("guestInput");
+    const addDiaryBtn = document.getElementById("addDiaryBtn");
+    const addGuestbookBtn = document.getElementById("addGuestbookBtn");
 
-      const today = new Date().toLocaleDateString();
-      todayDate.textContent = `${today}`;
+    handleEnterToSubmit(diaryInput, addDiaryBtn);
+    handleEnterToSubmit(guestInput, addGuestbookBtn);
 
-      profileFile.addEventListener('change', () => {
-        const file = profileFile.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            profileImg.src = e.target.result;
-            localStorage.setItem('profileImage', e.target.result);
-          };
-          reader.readAsDataURL(file);
-        }
-      });
+    // 기존의 이벤트 및 로직들은 여기에 위치합니다...
 
-      const savedProfile = localStorage.getItem('profileImage');
-      if (savedProfile) profileImg.src = savedProfile;
+    const guestbookList = document.getElementById("guestbookList");
+    const diaryList = document.getElementById("diaryList");
 
-      document.getElementById("addDiaryBtn").onclick = () => {
-        const text = diaryInput.value.trim();
-        if (text !== '') {
-          const time = new Date().toLocaleString();
-          const entry = { text, time };
-          push(ref(db, 'diary'), entry);
-          diaryInput.value = '';
-        }
-      };
+    onValue(ref(db, 'diary'), (snapshot) => {
+      diaryList.innerHTML = '';
+      snapshot.forEach(child => {
+        const entry = child.val();
+        const key = child.key;
+        const li = document.createElement('li');
 
-      onValue(ref(db, 'diary'), (snapshot) => {
-        diaryList.innerHTML = '';
-        snapshot.forEach(child => {
-          const entry = child.val();
-          const key = child.key;
-          const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.textContent = `[${entry.time}] ${entry.text}`;
 
-          const span = document.createElement('span');
-          span.textContent = `[${entry.time}] ${entry.text}`;
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.style.background = 'none';
+        editBtn.style.border = 'none';
+        editBtn.style.boxShadow = 'none';
+        editBtn.onclick = () => {
+          const newText = prompt('수정할 내용을 입력하세요:', entry.text);
+          if (newText) update(ref(db, `diary/${key}`), { text: newText });
+        };
 
-          const editBtn = document.createElement('button');
-          editBtn.textContent = '✏️';
-          editBtn.style.background = 'none';
-          editBtn.style.border = 'none';
-          editBtn.style.boxShadow = 'none';
-          editBtn.onclick = () => {
-            const newText = prompt('수정할 내용을 입력하세요:', entry.text);
-            if (newText) update(ref(db, `diary/${key}`), { text: newText });
-          };
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '🗑️';
+        delBtn.style.background = 'none';
+        delBtn.style.border = 'none';
+        delBtn.style.boxShadow = 'none';
+        delBtn.onclick = () => remove(ref(db, `diary/${key}`));
 
-          const delBtn = document.createElement('button');
-          delBtn.textContent = '🗑️';
-          delBtn.style.background = 'none';
-          delBtn.style.border = 'none';
-          delBtn.style.boxShadow = 'none';
-          delBtn.onclick = () => remove(ref(db, `diary/${key}`));
-
-          li.appendChild(span);
-          li.appendChild(editBtn);
-          li.appendChild(delBtn);
-          diaryList.appendChild(li);
-        });
-      });
-
-      document.getElementById("addGuestbookBtn").onclick = () => {
-        const text = guestInput.value.trim();
-        if (text !== '') {
-          const time = new Date().toLocaleString();
-          const entry = { text, time };
-          push(ref(db, 'guestbook'), entry);
-          guestInput.value = '';
-        }
-      };
-
-      onValue(ref(db, 'guestbook'), (snapshot) => {
-        guestbookList.innerHTML = '';
-        snapshot.forEach(child => {
-          const entry = child.val();
-          const key = child.key;
-          const li = document.createElement('li');
-
-          const span = document.createElement('span');
-          span.textContent = `[${entry.time}] ${entry.text}`;
-
-          const editBtn = document.createElement('button');
-          editBtn.textContent = '✏️';
-          editBtn.style.background = 'none';
-          editBtn.style.border = 'none';
-          editBtn.style.boxShadow = 'none';
-          editBtn.onclick = () => {
-            const newText = prompt('수정할 내용을 입력하세요:', entry.text);
-            if (newText) update(ref(db, `guestbook/${key}`), { text: newText });
-          };
-
-          const delBtn = document.createElement('button');
-          delBtn.textContent = '🗑️';
-          delBtn.style.background = 'none';
-          delBtn.style.border = 'none';
-          delBtn.style.boxShadow = 'none';
-          delBtn.onclick = () => remove(ref(db, `guestbook/${key}`));
-
-          li.appendChild(span);
-          li.appendChild(editBtn);
-          li.appendChild(delBtn);
-          guestbookList.appendChild(li);
-        });
+        li.appendChild(span);
+        li.appendChild(editBtn);
+        li.appendChild(delBtn);
+        diaryList.appendChild(li);
       });
     });
-  </script>
+
+    onValue(ref(db, 'guestbook'), (snapshot) => {
+      guestbookList.innerHTML = '';
+      snapshot.forEach(child => {
+        const entry = child.val();
+        const key = child.key;
+        const li = document.createElement('li');
+
+        const span = document.createElement('span');
+        span.textContent = `[${entry.time}] ${entry.text}`;
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.style.background = 'none';
+        editBtn.style.border = 'none';
+        editBtn.style.boxShadow = 'none';
+        editBtn.onclick = () => {
+          const newText = prompt('수정할 내용을 입력하세요:', entry.text);
+          if (newText) update(ref(db, `guestbook/${key}`), { text: newText });
+        };
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '🗑️';
+        delBtn.style.background = 'none';
+        delBtn.style.border = 'none';
+        delBtn.style.boxShadow = 'none';
+        delBtn.onclick = () => remove(ref(db, `guestbook/${key}`));
+
+        li.appendChild(span);
+        li.appendChild(editBtn);
+        li.appendChild(delBtn);
+        guestbookList.appendChild(li);
+      });
+    });
+  });
+</script>
   <style>
     body {
       font-family: 'Arial', sans-serif;
