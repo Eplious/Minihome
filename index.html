@@ -34,17 +34,29 @@
       const today = new Date().toLocaleDateString();
       todayDate.textContent = `${today}`;
 
-      profileFile.addEventListener('change', async () => {
-        const file = profileFile.files[0];
-        if (file) {
-          const filePath = 'profile/profile.jpg';
-          const fileRef = storageRef(storage, filePath);
-          await uploadBytes(fileRef, file);
-          const downloadURL = await getDownloadURL(fileRef);
-          await set(ref(db, 'profileImage'), { url: downloadURL });
-          profileImg.src = downloadURL;
-        }
-      });
+     profileFile.addEventListener('change', async () => {
+  const file = profileFile.files[0];
+  if (file) {
+    try {
+      console.log('[업로드 시작]');
+      const filePath = 'profile/profile.jpg';
+      const fileRef = storageRef(storage, filePath);
+      await uploadBytes(fileRef, file);
+      console.log('[업로드 성공]');
+
+      const downloadURL = await getDownloadURL(fileRef);
+      console.log('[다운로드 URL]', downloadURL);
+
+      await set(ref(db, 'profileImage'), { url: downloadURL });
+      console.log('[DB 저장 성공]');
+      
+      profileImg.src = downloadURL;
+    } catch (error) {
+      console.error('[에러 발생]', error);
+    }
+  }
+});
+
 
       // 처음 로딩 시 프로필 이미지 불러오기
       const snapshot = await get(child(ref(db), 'profileImage'));
